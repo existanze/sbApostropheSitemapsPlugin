@@ -1,0 +1,77 @@
+ Google Sitemaps Plugin for Apostrophe Content Management System	
+
+    Thursday, 9 June 2011
+    Posted By: Giles Smith
+    3 Comments
+
+google apostrophenow symfony
+1
+
+As part of our mission to advocate open source and community driven software we are releasing our XML sitemap generator for Apostrophe Content Management System for public use. Apostrophe is an awesome website content management system and provides a great platform for us to build websites and web applications on top of.
+
+Whilst having an XML sitemap doesn't guarantee that your pages will be indexed by search engines in my experience it does ensure that they are indexed quicker and more accurately than relying on search engine bots finding their way around. This is particularly true for new websites with no history or incoming links.
+
+This is the first of our Apostrophe Symfony plugins to be deemed ready for public use and we have several more in the pipeline. One in particular may be of great interest to the Apostrophe and Symfony community, a clue may be found on our Github page...
+
+If you need any assistance or want to find out more leave us a comment below or get in touch.
+Installation
+
+You can download the plugin from Github or connect it directly to your Apostrophe project as a Git Submodule.
+
+https://github.com/superrbstudio/sbApostropheSitemapsPlugin
+
+git submodule add git://github.com/superrbstudio/sbApostropheSitemapsPlugin.git plugins/sbApostropheSitemapsPlugin
+
+I keep all of my git modules in /lib/vendor and then symlink them into the plugins folder, which means I can quickly swap them out for another version if I should ever feel the need.
+
+Once you have got the Plugin installed into your /plugins folder you need to add sbApostropheSitemapsPlugin to your ProjectConfiguration.class.php and add sbGoogleSitemap to your frontend app's settings.yml
+
+You then need to add the following options to your app.yml
+
+all:
+  a:
+    # Google Sitemap Plugin
+    sbGoogleSitemap:
+      default_changefreq: daily
+      default_priority: 0.6
+      default_lastmod: '<?php echo strtotime('-1 week'); ?>'
+      
+      # You can define a model method that will return an array 
+      # of sbGoogleSitemapPage objects
+      #plugin_models: 
+      #  sbJobBoardJob: pagesForSitemap
+      
+      # Should we include blog pages automatically in the sitemap
+      blog_pages: true
+      blog_page_priority: 0.7
+      blog_page_changefreq: daily
+
+Currently there isn't the ability to set the priority for each page uniquely so these priorities are given to all pages.
+
+The version of .htaccess that comes with the Apostrophe sandbox also doesn't forward requests for pages with an extension to the Symfony engine so you need to change the following lines:
+
+  # we skip all files with .something
+  RewriteCond %{REQUEST_URI} \..+$
+  RewriteCond %{REQUEST_URI} !\.html$
+  RewriteRule .* - [L]
+
+to
+
+  # we skip all files with .something
+  RewriteCond %{REQUEST_URI} \..+$
+  RewriteCond %{REQUEST_URI} !\.html$
+  RewriteCond %{REQUEST_URI} !sitemap\.xml
+  RewriteRule .* - [L]
+
+And that is it! All requests for /sitemap.xml will now be presented with an XML document containing all of the pages of your Apostrophe site.
+UPDATE - 12-08-2011
+
+The plugin now supports generating sitemaps for your own custom engines. You can create a method in your model that will return an array of sbGoogleSitemapPages that will then be added to the sitemap. The app.yml configuration example above has been updated accordingly.
+Roadmap:
+
+    Added support for aEvent items yet
+    Standard pages to output their true last modified date and time.
+    Ability to set unique priorities for all pages.
+    Ability to create news feeds for Google News. 
+    Caching of sitemap.
+
